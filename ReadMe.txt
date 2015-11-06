@@ -52,6 +52,10 @@ The texture used for the paint brush.
 ================================================================================
 CHANGES FROM PREVIOUS VERSIONS:
 
+Version 1.11
+Updated to take into account the view's contentScaleFactor.
+Updated to draw strictly with premultiplied alpha pixel data.
+
 Version 1.9
 Upgraded project to build with the iOS 4.0 SDK.
 Fixed minor bugs.

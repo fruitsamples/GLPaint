@@ -3,7 +3,7 @@
  Abstract: The class responsible for the finger painting. The class wraps the 
  CAEAGLLayer from CoreAnimation into a convenient UIView subclass. The view 
  content is basically an EAGL surface you render your OpenGL scene into.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -81,12 +81,13 @@
 	CGPoint	location;
 	CGPoint	previousLocation;
 	Boolean	firstTouch;
-	Boolean needsErase;
+	Boolean needsErase;	
 }
 
 @property(nonatomic, readwrite) CGPoint location;
 @property(nonatomic, readwrite) CGPoint previousLocation;
 
--(void)erase;
+- (void)erase;
+- (void)setBrushColorWithRed:(CGFloat)red green:(CGFloat)green blue:(CGFloat)blue;
 
 @end

@@ -2,7 +2,7 @@
      File: AppController.h
  Abstract: The UIApplication delegate class, which is the central controller of
  the application.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following

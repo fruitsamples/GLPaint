@@ -2,7 +2,7 @@
      File: AppController.m
  Abstract: The UIApplication delegate class, which is the central controller of
  the application.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -170,8 +170,8 @@ static void HSL2RGB(float h, float s, float l, float* outR, float* outG, float* 
 	
     // Define a starting color 
 	HSL2RGB((CGFloat) 2.0 / (CGFloat)kPaletteSize, kSaturation, kLuminosity, &components[0], &components[1], &components[2]);
-	// Set the color using OpenGL
-	glColor4f(components[0], components[1], components[2], kBrushOpacity);
+	// Defer to the OpenGL view to set the brush color
+	[drawingView setBrushColorWithRed:components[0] green:components[1] blue:components[2]];
 	
 	// Look in the Info.plist file and you'll see the status bar is hidden
 	// Set the style to black so it matches the background of the application
@@ -205,12 +205,14 @@ static void HSL2RGB(float h, float s, float l, float* outR, float* outG, float* 
 {
  	CGFloat					components[3];
  
-	//Play sound
+	// Play sound
  	[selectSound play];
 	
-	//Set the new brush color
+	// Define a new brush color
  	HSL2RGB((CGFloat)[sender selectedSegmentIndex] / (CGFloat)kPaletteSize, kSaturation, kLuminosity, &components[0], &components[1], &components[2]);
- 	glColor4f(components[0], components[1], components[2], kBrushOpacity);
+	// Defer to the OpenGL view to set the brush color
+	[drawingView setBrushColorWithRed:components[0] green:components[1] blue:components[2]];
+
 }
 
 // Called when receiving the "shake" notification; plays the erase sound and redraws the view
@@ -221,6 +223,6 @@ static void HSL2RGB(float h, float s, float l, float* outR, float* outG, float* 
 		[drawingView erase];
 		lastTime = CFAbsoluteTimeGetCurrent();
 	}
-}	
+}
 
 @end

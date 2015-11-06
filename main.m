@@ -1,7 +1,7 @@
 /*
      File: main.m
  Abstract: The main entry point for GLPaint.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following

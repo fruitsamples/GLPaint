@@ -1,7 +1,7 @@
 /*
      File: SoundEffect.m
  Abstract: SoundEffect is a class that loads and plays sound files.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following

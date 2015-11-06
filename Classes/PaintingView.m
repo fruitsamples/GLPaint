@@ -3,7 +3,7 @@
  Abstract: The class responsible for the finger painting. The class wraps the 
  CAEAGLLayer from CoreAnimation into a convenient UIView subclass. The view 
  content is basically an EAGL surface you render your OpenGL scene into.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -131,11 +131,16 @@
             free(brushData);
 		}
 		
-		//Set up OpenGL states
+		// Set the view's scale factor
+		self.contentScaleFactor = 1.0;
+	
+		// Setup OpenGL states
 		glMatrixMode(GL_PROJECTION);
 		CGRect frame = self.bounds;
-		glOrthof(0, frame.size.width, 0, frame.size.height, -1, 1);
-		glViewport(0, 0, frame.size.width, frame.size.height);
+		CGFloat scale = self.contentScaleFactor;
+		// Setup the view port in Pixels
+		glOrthof(0, frame.size.width * scale, 0, frame.size.height * scale, -1, 1);
+		glViewport(0, 0, frame.size.width * scale, frame.size.height * scale);
 		glMatrixMode(GL_MODELVIEW);
 		
 		glDisable(GL_DITHER);
@@ -143,16 +148,17 @@
 		glEnableClientState(GL_VERTEX_ARRAY);
 		
 	    glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		// Set a blending function appropriate for premultiplied alpha pixel data
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		
 		glEnable(GL_POINT_SPRITE_OES);
 		glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
 		glPointSize(width / kBrushScale);
 		
-		//Make sure to start with a cleared buffer
+		// Make sure to start with a cleared buffer
 		needsErase = YES;
 		
-		//Playback recorded path, which is "Shake Me"
+		// Playback recorded path, which is "Shake Me"
 		recordedPaths = [NSMutableArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Recording" ofType:@"data"]];
 		if([recordedPaths count])
 			[self performSelector:@selector(playback:) withObject:recordedPaths afterDelay:0.2];
@@ -246,12 +252,12 @@
 {
 	[EAGLContext setCurrentContext:context];
 	
-	//Clear the buffer
+	// Clear the buffer
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	//Display the buffer
+	// Display the buffer
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
@@ -268,11 +274,18 @@
 	[EAGLContext setCurrentContext:context];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 	
-	//Allocate vertex array buffer
+	// Convert locations from Points to Pixels
+	CGFloat scale = self.contentScaleFactor;
+	start.x *= scale;
+	start.y *= scale;
+	end.x *= scale;
+	end.y *= scale;
+	
+	// Allocate vertex array buffer
 	if(vertexBuffer == NULL)
 		vertexBuffer = malloc(vertexMax * 2 * sizeof(GLfloat));
 	
-	//Add points to the buffer so there are drawing points every X pixels
+	// Add points to the buffer so there are drawing points every X pixels
 	count = MAX(ceilf(sqrtf((end.x - start.x) * (end.x - start.x) + (end.y - start.y) * (end.y - start.y)) / kBrushPixelStep), 1);
 	for(i = 0; i < count; ++i) {
 		if(vertexCount == vertexMax) {
@@ -285,11 +298,11 @@
 		vertexCount += 1;
 	}
 	
-	//Render the vertex array
+	// Render the vertex array
 	glVertexPointer(2, GL_FLOAT, 0, vertexBuffer);
 	glDrawArrays(GL_POINTS, 0, vertexCount);
 	
-	//Display the buffer
+	// Display the buffer
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
@@ -302,11 +315,11 @@
 	NSUInteger			count = [data length] / sizeof(CGPoint),
 						i;
 	
-	//Render the current path
+	// Render the current path
 	for(i = 0; i < count - 1; ++i, ++point)
 		[self renderLineFromPoint:*point toPoint:*(point + 1)];
 	
-	//Render the next path after a short delay 
+	// Render the next path after a short delay 
 	[recordedPaths removeObjectAtIndex:0];
 	if([recordedPaths count])
 		[self performSelector:@selector(playback:) withObject:recordedPaths afterDelay:0.01];
@@ -319,7 +332,7 @@
 	CGRect				bounds = [self bounds];
     UITouch*	touch = [[event touchesForView:self] anyObject];
 	firstTouch = YES;
-	//Convert touch point from UIView referential to OpenGL one (upside-down flip)
+	// Convert touch point from UIView referential to OpenGL one (upside-down flip)
 	location = [touch locationInView:self];
 	location.y = bounds.size.height - location.y;
 }
@@ -331,7 +344,7 @@
 	CGRect				bounds = [self bounds];
 	UITouch*			touch = [[event touchesForView:self] anyObject];
 		
-	//Convert touch point from UIView referential to OpenGL one (upside-down flip)
+	// Convert touch point from UIView referential to OpenGL one (upside-down flip)
 	if (firstTouch) {
 		firstTouch = NO;
 		previousLocation = [touch previousLocationInView:self];
@@ -365,6 +378,15 @@
 {
 	// If appropriate, add code necessary to save the state of the application.
 	// This application is not saving state.
+}
+
+- (void)setBrushColorWithRed:(CGFloat)red green:(CGFloat)green blue:(CGFloat)blue
+{
+	// Set the brush color using premultiplied alpha values
+	glColor4f(red	* kBrushOpacity,
+			  green * kBrushOpacity,
+			  blue	* kBrushOpacity,
+			  kBrushOpacity);
 }
 
 @end

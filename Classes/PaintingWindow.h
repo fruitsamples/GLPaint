@@ -1,7 +1,7 @@
 /*
      File: PaintingWindow.h
  Abstract: A subclass of UIWindow to handle shake and other motion events.
-  Version: 1.9
+  Version: 1.11
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
