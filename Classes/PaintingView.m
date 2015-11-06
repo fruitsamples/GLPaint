@@ -1,50 +1,50 @@
 /*
-
-File: PaintingView.m
-Abstract: The class responsible for the finger painting. The class wraps the 
-CAEAGLLayer from CoreAnimation into a convenient UIView subclass. The view 
-content is basically an EAGL surface you render your OpenGL scene into.
-
-Version: 1.7
-
-Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Inc.
-("Apple") in consideration of your agreement to the following terms, and your
-use, installation, modification or redistribution of this Apple software
-constitutes acceptance of these terms.  If you do not agree with these terms,
-please do not use, install, modify or redistribute this Apple software.
-
-In consideration of your agreement to abide by the following terms, and subject
-to these terms, Apple grants you a personal, non-exclusive license, under
-Apple's copyrights in this original Apple software (the "Apple Software"), to
-use, reproduce, modify and redistribute the Apple Software, with or without
-modifications, in source and/or binary forms; provided that if you redistribute
-the Apple Software in its entirety and without modifications, you must retain
-this notice and the following text and disclaimers in all such redistributions
-of the Apple Software.
-Neither the name, trademarks, service marks or logos of Apple Inc. may be used
-to endorse or promote products derived from the Apple Software without specific
-prior written permission from Apple.  Except as expressly stated in this notice,
-no other rights or licenses, express or implied, are granted by Apple herein,
-including but not limited to any patent rights that may be infringed by your
-derivative works or by other works in which the Apple Software may be
-incorporated.
-
-The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES NO
-WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE IMPLIED
-WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION ALONE OR IN
-COMBINATION WITH YOUR PRODUCTS.
-
-IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION, MODIFICATION AND/OR
-DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF
-CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
-APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Copyright (C) 2009 Apple Inc. All Rights Reserved.
-
+     File: PaintingView.m
+ Abstract: The class responsible for the finger painting. The class wraps the 
+ CAEAGLLayer from CoreAnimation into a convenient UIView subclass. The view 
+ content is basically an EAGL surface you render your OpenGL scene into.
+  Version: 1.9
+ 
+ Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
+ Inc. ("Apple") in consideration of your agreement to the following
+ terms, and your use, installation, modification or redistribution of
+ this Apple software constitutes acceptance of these terms.  If you do
+ not agree with these terms, please do not use, install, modify or
+ redistribute this Apple software.
+ 
+ In consideration of your agreement to abide by the following terms, and
+ subject to these terms, Apple grants you a personal, non-exclusive
+ license, under Apple's copyrights in this original Apple software (the
+ "Apple Software"), to use, reproduce, modify and redistribute the Apple
+ Software, with or without modifications, in source and/or binary forms;
+ provided that if you redistribute the Apple Software in its entirety and
+ without modifications, you must retain this notice and the following
+ text and disclaimers in all such redistributions of the Apple Software.
+ Neither the name, trademarks, service marks or logos of Apple Inc. may
+ be used to endorse or promote products derived from the Apple Software
+ without specific prior written permission from Apple.  Except as
+ expressly stated in this notice, no other rights or licenses, express or
+ implied, are granted by Apple herein, including but not limited to any
+ patent rights that may be infringed by your derivative works or by other
+ works in which the Apple Software may be incorporated.
+ 
+ The Apple Software is provided by Apple on an "AS IS" basis.  APPLE
+ MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+ THE IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND
+ OPERATION ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
+ 
+ IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL
+ OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
+ MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED
+ AND WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE),
+ STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+ 
+ Copyright (C) 2010 Apple Inc. All Rights Reserved.
+ 
 */
 
 #import <QuartzCore/QuartzCore.h>
@@ -114,7 +114,7 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 			// Allocate  memory needed for the bitmap context
 			brushData = (GLubyte *) calloc(width * height * 4, sizeof(GLubyte));
 			// Use  the bitmatp creation function provided by the Core Graphics framework. 
-			brushContext = CGBitmapContextCreate(brushData, width, width, 8, width * 4, CGImageGetColorSpace(brushImage), kCGImageAlphaPremultipliedLast);
+			brushContext = CGBitmapContextCreate(brushData, width, height, 8, width * 4, CGImageGetColorSpace(brushImage), kCGImageAlphaPremultipliedLast);
 			// After you create the context, you can draw the  image to the context.
 			CGContextDrawImage(brushContext, CGRectMake(0.0, 0.0, (CGFloat)width, (CGFloat)height), brushImage);
 			// You don't need the context at this point, so you need to release it to avoid memory leaks.
@@ -129,13 +129,6 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
 			// Release  the image data; it's no longer needed
             free(brushData);
-			
-			// Enable use of the texture
-			glEnable(GL_TEXTURE_2D);
-			// Set a blending function to use
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			// Enable blending
-			glEnable(GL_BLEND);
 		}
 		
 		//Set up OpenGL states
@@ -148,8 +141,10 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 		glDisable(GL_DITHER);
 		glEnable(GL_TEXTURE_2D);
 		glEnableClientState(GL_VERTEX_ARRAY);
+		
 	    glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		
 		glEnable(GL_POINT_SPRITE_OES);
 		glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
 		glPointSize(width / kBrushScale);
@@ -253,8 +248,8 @@ Copyright (C) 2009 Apple Inc. All Rights Reserved.
 	
 	//Clear the buffer
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
 	
 	//Display the buffer
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);

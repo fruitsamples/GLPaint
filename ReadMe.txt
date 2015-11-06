@@ -14,12 +14,12 @@ NOTE: When you run the application in the simulator, you can use the Shake Gestu
 ================================================================================
 BUILD REQUIREMENTS:
 
-iPhone SDK 3.1 and later
+iOS 4.0 SDK
 
 ================================================================================
 RUNTIME REQUIREMENTS:
 
-iPhone OS 3.1 and later
+iOS 3.2 or later
 
 ================================================================================
 PACKAGING LIST:
@@ -51,6 +51,13 @@ The texture used for the paint brush.
 
 ================================================================================
 CHANGES FROM PREVIOUS VERSIONS:
+
+Version 1.9
+Upgraded project to build with the iOS 4.0 SDK.
+Fixed minor bugs.
+
+Version 1.8
+Removed duplicate lines in setting up OpenGL blending.
 
 Version 1.7
 Updated for iPhone OS 3.1. Set texture parameters before creating the texture. This will save texture memory and texture loading time.
@@ -85,4 +92,4 @@ Version 1.1
 Updated for Beta 2.
 
 ================================================================================
-Copyright (C) 2009 Apple Inc. All rights reserved.
+Copyright (C) 2009-2010 Apple Inc. All rights reserved.

@@ -11,7 +11,6 @@
 		1B8CA3120DC8E3A4002C657A /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8CA30B0DC8E3A4002C657A /* AppController.m */; };
 		1B8CA3130DC8E3A4002C657A /* PaintingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8CA30D0DC8E3A4002C657A /* PaintingView.m */; };
 		1B8CA3140DC8E3A4002C657A /* SoundEffect.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B8CA30F0DC8E3A4002C657A /* SoundEffect.m */; };
-		1B8CA3660DC8E818002C657A /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B8CA3650DC8E818002C657A /* Icon.png */; };
 		1BBE306C0DD273B90012773B /* Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 1BBE30670DD273B90012773B /* Blue.png */; };
 		1BBE306D0DD273B90012773B /* Green.png in Resources */ = {isa = PBXBuildFile; fileRef = 1BBE30680DD273B90012773B /* Green.png */; };
 		1BBE306E0DD273B90012773B /* Purple.png in Resources */ = {isa = PBXBuildFile; fileRef = 1BBE30690DD273B90012773B /* Purple.png */; };
@@ -30,6 +29,13 @@
 		2D500C820D5A7DAE00DBA0E3 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D500C810D5A7DAE00DBA0E3 /* AudioToolbox.framework */; };
 		AF85865410694D4D0004D36B /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = AF85865310694D4D0004D36B /* MainWindow.xib */; };
 		AF858950106977F20004D36B /* PaintingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = AF85894F106977F20004D36B /* PaintingWindow.m */; };
+		AFCEBA2111D96215001AA22A /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1A11D96215001AA22A /* Icon-72.png */; };
+		AFCEBA2211D96215001AA22A /* Icon-Small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1B11D96215001AA22A /* Icon-Small-50.png */; };
+		AFCEBA2311D96215001AA22A /* Icon-Small.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1C11D96215001AA22A /* Icon-Small.png */; };
+		AFCEBA2411D96215001AA22A /* Icon-Small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1D11D96215001AA22A /* Icon-Small@2x.png */; };
+		AFCEBA2511D96215001AA22A /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1E11D96215001AA22A /* Icon.png */; };
+		AFCEBA2611D96215001AA22A /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA1F11D96215001AA22A /* Icon@2x.png */; };
+		AFCEBA2711D96215001AA22A /* iTunesArtwork in Resources */ = {isa = PBXBuildFile; fileRef = AFCEBA2011D96215001AA22A /* iTunesArtwork */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +46,6 @@
 		1B8CA30D0DC8E3A4002C657A /* PaintingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PaintingView.m; path = Classes/PaintingView.m; sourceTree = "<group>"; };
 		1B8CA30E0DC8E3A4002C657A /* SoundEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoundEffect.h; path = Classes/SoundEffect.h; sourceTree = "<group>"; };
 		1B8CA30F0DC8E3A4002C657A /* SoundEffect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SoundEffect.m; path = Classes/SoundEffect.m; sourceTree = "<group>"; };
-		1B8CA3650DC8E818002C657A /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		1BBE30670DD273B90012773B /* Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Blue.png; path = Images/Blue.png; sourceTree = "<group>"; };
 		1BBE30680DD273B90012773B /* Green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Green.png; path = Images/Green.png; sourceTree = "<group>"; };
 		1BBE30690DD273B90012773B /* Purple.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Purple.png; path = Images/Purple.png; sourceTree = "<group>"; };
@@ -60,10 +65,17 @@
 		2D500B990D5A79CF00DBA0E3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2D500C810D5A7DAE00DBA0E3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		32CA4F630368D1EE00C91783 /* Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
-		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8D1107310486CEB800E47090 /* GLPaint-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GLPaint-Info.plist"; sourceTree = "<group>"; };
 		AF85865310694D4D0004D36B /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		AF85894E106977F20004D36B /* PaintingWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PaintingWindow.h; path = Classes/PaintingWindow.h; sourceTree = "<group>"; };
 		AF85894F106977F20004D36B /* PaintingWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PaintingWindow.m; path = Classes/PaintingWindow.m; sourceTree = "<group>"; };
+		AFCEBA1A11D96215001AA22A /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "Images/Icon-72.png"; sourceTree = "<group>"; };
+		AFCEBA1B11D96215001AA22A /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small-50.png"; path = "Images/Icon-Small-50.png"; sourceTree = "<group>"; };
+		AFCEBA1C11D96215001AA22A /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small.png"; path = "Images/Icon-Small.png"; sourceTree = "<group>"; };
+		AFCEBA1D11D96215001AA22A /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small@2x.png"; path = "Images/Icon-Small@2x.png"; sourceTree = "<group>"; };
+		AFCEBA1E11D96215001AA22A /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = Images/Icon.png; sourceTree = "<group>"; };
+		AFCEBA1F11D96215001AA22A /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon@2x.png"; path = "Images/Icon@2x.png"; sourceTree = "<group>"; };
+		AFCEBA2011D96215001AA22A /* iTunesArtwork */ = {isa = PBXFileReference; lastKnownFileType = file; name = iTunesArtwork; path = Images/iTunesArtwork; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,14 +128,20 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AFCEBA1A11D96215001AA22A /* Icon-72.png */,
+				AFCEBA1B11D96215001AA22A /* Icon-Small-50.png */,
+				AFCEBA1C11D96215001AA22A /* Icon-Small.png */,
+				AFCEBA1D11D96215001AA22A /* Icon-Small@2x.png */,
+				AFCEBA1E11D96215001AA22A /* Icon.png */,
+				AFCEBA1F11D96215001AA22A /* Icon@2x.png */,
+				AFCEBA2011D96215001AA22A /* iTunesArtwork */,
 				AF85865310694D4D0004D36B /* MainWindow.xib */,
-				1B8CA3650DC8E818002C657A /* Icon.png */,
 				1B612B1E0DDCF277003A5CC7 /* Particle.png */,
 				1BD0B6AA0DDCA9B800E538F8 /* Default.png */,
 				28F25BBF0D64BF0B00158CCD /* Recording.data */,
 				28F25BC00D64BF0B00158CCD /* Select.caf */,
 				28F25BC10D64BF0B00158CCD /* Erase.caf */,
-				8D1107310486CEB800E47090 /* Info.plist */,
+				8D1107310486CEB800E47090 /* GLPaint-Info.plist */,
 				1BBE30670DD273B90012773B /* Blue.png */,
 				1BBE30680DD273B90012773B /* Green.png */,
 				1BBE30690DD273B90012773B /* Purple.png */,
@@ -206,7 +224,6 @@
 				28F25BC20D64BF0B00158CCD /* Recording.data in Resources */,
 				28F25BC30D64BF0B00158CCD /* Select.caf in Resources */,
 				28F25BC40D64BF0B00158CCD /* Erase.caf in Resources */,
-				1B8CA3660DC8E818002C657A /* Icon.png in Resources */,
 				1BBE306C0DD273B90012773B /* Blue.png in Resources */,
 				1BBE306D0DD273B90012773B /* Green.png in Resources */,
 				1BBE306E0DD273B90012773B /* Purple.png in Resources */,
@@ -215,6 +232,13 @@
 				1BD0B6AB0DDCA9B800E538F8 /* Default.png in Resources */,
 				1B612B1F0DDCF277003A5CC7 /* Particle.png in Resources */,
 				AF85865410694D4D0004D36B /* MainWindow.xib in Resources */,
+				AFCEBA2111D96215001AA22A /* Icon-72.png in Resources */,
+				AFCEBA2211D96215001AA22A /* Icon-Small-50.png in Resources */,
+				AFCEBA2311D96215001AA22A /* Icon-Small.png in Resources */,
+				AFCEBA2411D96215001AA22A /* Icon-Small@2x.png in Resources */,
+				AFCEBA2511D96215001AA22A /* Icon.png in Resources */,
+				AFCEBA2611D96215001AA22A /* Icon@2x.png in Resources */,
+				AFCEBA2711D96215001AA22A /* iTunesArtwork in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,7 +271,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "GLPaint-Info.plist";
 				PREBINDING = NO;
 				PRODUCT_NAME = GLPaint;
 				WARNING_CFLAGS = "-Wall";
@@ -263,7 +287,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = "GLPaint-Info.plist";
 				PREBINDING = NO;
 				PRODUCT_NAME = GLPaint;
 				WARNING_CFLAGS = "-Wall";
@@ -281,9 +305,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.1;
+				SDKROOT = iphoneos4.0;
 			};
 			name = Debug;
 		};
@@ -296,8 +321,9 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.1;
+				SDKROOT = iphoneos4.0;
 			};
 			name = Release;
 		};
