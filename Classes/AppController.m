@@ -4,7 +4,7 @@ File: AppController.m
 Abstract: The UIApplication  delegate class, which is the central controller of
 the application.
 
-Version: 1.6
+Version: 1.7
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Inc.
 ("Apple") in consideration of your agreement to the following terms, and your
@@ -42,20 +42,19 @@ DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF
 CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
 APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Copyright (C) 2008 Apple Inc. All Rights Reserved.
+Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
 */
 
 #import "AppController.h"
+#import "PaintingView.h"
+#import "SoundEffect.h"
 
 //CONSTANTS:
 
-#define kPaletteHeight					30
-#define kPaletteSize				    5
-#define kAccelerometerFrequency			25 //Hz
-#define kFilteringFactor				0.1
-#define kMinEraseInterval				0.5
-#define kEraseAccelerationThreshold		2.0
+#define kPaletteHeight			30
+#define kPaletteSize			5
+#define kMinEraseInterval		0.5
 
 // Padding for margins
 #define kLeftMargin				10.0
@@ -135,18 +134,13 @@ static void HSL2RGB(float h, float s, float l, float* outR, float* outG, float* 
 
 @implementation AppController
 
+@synthesize window;
+@synthesize drawingView;
+
 - (void) applicationDidFinishLaunching:(UIApplication*)application
 {
 	CGRect					rect = [[UIScreen mainScreen] applicationFrame];
 	CGFloat					components[3];
-	
-	//Create a full-screen window
-	window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-	[window setBackgroundColor:[UIColor blackColor]];
-	
-	//Create the OpenGL drawing view and add it to the window
-	drawingView = [[PaintingView alloc] initWithFrame:CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height)]; // - kPaletteHeight 
-	[window addSubview:drawingView];
 	
 	// Create a segmented control so that the user can choose the brush color.
 	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:
@@ -179,22 +173,20 @@ static void HSL2RGB(float h, float s, float l, float* outR, float* outG, float* 
 	// Set the color using OpenGL
 	glColor4f(components[0], components[1], components[2], kBrushOpacity);
 	
-	//Show the window
-	[window makeKeyAndVisible];	
 	// Look in the Info.plist file and you'll see the status bar is hidden
 	// Set the style to black so it matches the background of the application
 	[application setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:NO];
 	// Now show the status bar, but animate to the style.
 	[application setStatusBarHidden:NO animated:YES];
 	
-	//Configure and enable the accelerometer
-	[[UIAccelerometer sharedAccelerometer] setUpdateInterval:(1.0 / kAccelerometerFrequency)];
-	[[UIAccelerometer sharedAccelerometer] setDelegate:self];
-	
-	//Load the sounds
-	 NSBundle *mainBundle = [NSBundle mainBundle];	
+	// Load the sounds
+	NSBundle *mainBundle = [NSBundle mainBundle];	
 	erasingSound = [[SoundEffect alloc] initWithContentsOfFile:[mainBundle pathForResource:@"Erase" ofType:@"caf"]];
 	selectSound =  [[SoundEffect alloc] initWithContentsOfFile:[mainBundle pathForResource:@"Select" ofType:@"caf"]];
+
+	// Erase the view when recieving a notification named "shake" from the NSNotificationCenter object
+	// The "shake" nofification is posted by the PaintingWindow object when user shakes the device
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eraseView) name:@"shake" object:nil];
 }
 
 // Release resources when they are no longer needed,
@@ -219,33 +211,16 @@ static void HSL2RGB(float h, float s, float l, float* outR, float* outG, float* 
 	//Set the new brush color
  	HSL2RGB((CGFloat)[sender selectedSegmentIndex] / (CGFloat)kPaletteSize, kSaturation, kLuminosity, &components[0], &components[1], &components[2]);
  	glColor4f(components[0], components[1], components[2], kBrushOpacity);
- }
+}
 
-// Called when the accelerometer detects motion; plays the erase sound and redraws the view if the motion is over a threshold.
-- (void) accelerometer:(UIAccelerometer*)accelerometer didAccelerate:(UIAcceleration*)acceleration
+// Called when receiving the "shake" notification; plays the erase sound and redraws the view
+-(void) eraseView
 {
-	UIAccelerationValue				length,
-									x,
-									y,
-									z;
-	
-	//Use a basic high-pass filter to remove the influence of the gravity
-	myAccelerometer[0] = acceleration.x * kFilteringFactor + myAccelerometer[0] * (1.0 - kFilteringFactor);
-	myAccelerometer[1] = acceleration.y * kFilteringFactor + myAccelerometer[1] * (1.0 - kFilteringFactor);
-	myAccelerometer[2] = acceleration.z * kFilteringFactor + myAccelerometer[2] * (1.0 - kFilteringFactor);
-	// Compute values for the three axes of the acceleromater
-	x = acceleration.x - myAccelerometer[0];
-	y = acceleration.y - myAccelerometer[0];
-	z = acceleration.z - myAccelerometer[0];
-	
-	//Compute the intensity of the current acceleration 
-	length = sqrt(x * x + y * y + z * z);
-	// If above a given threshold, play the erase sounds and erase the drawing view
-	if((length >= kEraseAccelerationThreshold) && (CFAbsoluteTimeGetCurrent() > lastTime + kMinEraseInterval)) {
+	if(CFAbsoluteTimeGetCurrent() > lastTime + kMinEraseInterval) {
 		[erasingSound play];
 		[drawingView erase];
 		lastTime = CFAbsoluteTimeGetCurrent();
 	}
-}
+}	
 
 @end

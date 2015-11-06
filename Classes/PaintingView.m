@@ -1,9 +1,11 @@
 /*
 
 File: PaintingView.m
-Abstract: The class responsible for the finger painting.
+Abstract: The class responsible for the finger painting. The class wraps the 
+CAEAGLLayer from CoreAnimation into a convenient UIView subclass. The view 
+content is basically an EAGL surface you render your OpenGL scene into.
 
-Version: 1.6
+Version: 1.7
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Inc.
 ("Apple") in consideration of your agreement to the following terms, and your
@@ -41,30 +43,61 @@ DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF
 CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
 APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Copyright (C) 2008 Apple Inc. All Rights Reserved.
+Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
 */
+
+#import <QuartzCore/QuartzCore.h>
+#import <OpenGLES/EAGLDrawable.h>
 
 #import "PaintingView.h"
 
 //CLASS IMPLEMENTATIONS:
+
+// A class extension to declare private methods
+@interface PaintingView (private)
+
+- (BOOL)createFramebuffer;
+- (void)destroyFramebuffer;
+
+@end
 
 @implementation PaintingView
 
 @synthesize  location;
 @synthesize  previousLocation;
 
-- (id) initWithFrame:(CGRect)frame
+// Implement this to override the default layer class (which is [CALayer class]).
+// We do this so that our view will be backed by a layer that is capable of OpenGL ES rendering.
++ (Class) layerClass
 {
+	return [CAEAGLLayer class];
+}
+
+// The GL view is stored in the nib file. When it's unarchived it's sent -initWithCoder:
+- (id)initWithCoder:(NSCoder*)coder {
+	
 	NSMutableArray*	recordedPaths;
 	CGImageRef		brushImage;
 	CGContextRef	brushContext;
 	GLubyte			*brushData;
 	size_t			width, height;
-	
-	if((self = [super initWithFrame:frame pixelFormat:GL_RGB565_OES depthFormat:0 preserveBackbuffer:YES])) {
-		[self setCurrentContext];
-
+    
+    if ((self = [super initWithCoder:coder])) {
+		CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
+		
+		eaglLayer.opaque = YES;
+		// In this application, we want to retain the EAGLDrawable contents after a call to presentRenderbuffer.
+		eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+										[NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
+		
+		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+		
+		if (!context || ![EAGLContext setCurrentContext:context]) {
+			[self release];
+			return nil;
+		}
+		
 		// Create a texture from an image
 		// First create a UIImage object from the data in a image file, and then extract the Core Graphics image
 		brushImage = [UIImage imageNamed:@"Particle.png"].CGImage;
@@ -79,7 +112,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		// Make sure the image exists
 		if(brushImage) {
 			// Allocate  memory needed for the bitmap context
-			brushData = (GLubyte *) malloc(width * height * 4);
+			brushData = (GLubyte *) calloc(width * height * 4, sizeof(GLubyte));
 			// Use  the bitmatp creation function provided by the Core Graphics framework. 
 			brushContext = CGBitmapContextCreate(brushData, width, width, 8, width * 4, CGImageGetColorSpace(brushImage), kCGImageAlphaPremultipliedLast);
 			// After you create the context, you can draw the  image to the context.
@@ -90,12 +123,12 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 			glGenTextures(1, &brushTexture);
 			// Bind the texture name. 
 			glBindTexture(GL_TEXTURE_2D, brushTexture);
+			// Set the texture parameters to use a minifying filter and a linear filer (weighted average)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			// Specify a 2D texture image, providing the a pointer to the image data in memory
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
 			// Release  the image data; it's no longer needed
-            free(brushData);		
-			// Set the texture parameters to use a minifying filter and a linear filer (weighted average)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            free(brushData);
 			
 			// Enable use of the texture
 			glEnable(GL_TEXTURE_2D);
@@ -106,10 +139,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		}
 		
 		//Set up OpenGL states
-		glDisable(GL_DITHER);
 		glMatrixMode(GL_PROJECTION);
+		CGRect frame = self.bounds;
 		glOrthof(0, frame.size.width, 0, frame.size.height, -1, 1);
+		glViewport(0, 0, frame.size.width, frame.size.height);
 		glMatrixMode(GL_MODELVIEW);
+		
+		glDisable(GL_DITHER);
 		glEnable(GL_TEXTURE_2D);
 		glEnableClientState(GL_VERTEX_ARRAY);
 	    glEnable(GL_BLEND);
@@ -117,40 +153,113 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		glEnable(GL_POINT_SPRITE_OES);
 		glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
 		glPointSize(width / kBrushScale);
-			
+		
 		//Make sure to start with a cleared buffer
-		[self erase];
+		needsErase = YES;
 		
 		//Playback recorded path, which is "Shake Me"
 		recordedPaths = [NSMutableArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"Recording" ofType:@"data"]];
 		if([recordedPaths count])
 			[self performSelector:@selector(playback:) withObject:recordedPaths afterDelay:0.2];
-		
 	}
 	
 	return self;
 }
 
+// If our view is resized, we'll be asked to layout subviews.
+// This is the perfect opportunity to also update the framebuffer so that it is
+// the same size as our display area.
+-(void)layoutSubviews
+{
+	[EAGLContext setCurrentContext:context];
+	[self destroyFramebuffer];
+	[self createFramebuffer];
+	
+	// Clear the framebuffer the first time it is allocated
+	if (needsErase) {
+		[self erase];
+		needsErase = NO;
+	}
+}
+
+- (BOOL)createFramebuffer
+{
+	// Generate IDs for a framebuffer object and a color renderbuffer
+	glGenFramebuffersOES(1, &viewFramebuffer);
+	glGenRenderbuffersOES(1, &viewRenderbuffer);
+	
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+	// This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
+	// allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
+	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(id<EAGLDrawable>)self.layer];
+	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, viewRenderbuffer);
+	
+	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
+	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+	
+	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
+	glGenRenderbuffersOES(1, &depthRenderbuffer);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
+	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
+	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+	
+	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
+	{
+		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+		return NO;
+	}
+	
+	return YES;
+}
+
+// Clean up any buffers we have allocated.
+- (void)destroyFramebuffer
+{
+	glDeleteFramebuffersOES(1, &viewFramebuffer);
+	viewFramebuffer = 0;
+	glDeleteRenderbuffersOES(1, &viewRenderbuffer);
+	viewRenderbuffer = 0;
+	
+	if(depthRenderbuffer)
+	{
+		glDeleteRenderbuffersOES(1, &depthRenderbuffer);
+		depthRenderbuffer = 0;
+	}
+}
+
 // Releases resources when they are not longer needed.
 - (void) dealloc
 {
-		
-	glDeleteFramebuffersOES(1, &drawingFramebuffer);
-	glDeleteTextures(1, &drawingTexture);
-
+	if (brushTexture)
+	{
+		glDeleteTextures(1, &brushTexture);
+		brushTexture = 0;
+	}
+	
+	if([EAGLContext currentContext] == context)
+	{
+		[EAGLContext setCurrentContext:nil];
+	}
+	
+	[context release];
 	[super dealloc];
 }
 
 // Erases the screen
 - (void) erase
 {
+	[EAGLContext setCurrentContext:context];
+	
 	//Clear the buffer
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	
 	//Display the buffer
-	[self swapBuffers];
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
-
 
 // Drawings a line onscreen based on where the user touches
 - (void) renderLineFromPoint:(CGPoint)start toPoint:(CGPoint)end
@@ -161,11 +270,14 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 						count,
 						i;
 	
+	[EAGLContext setCurrentContext:context];
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+	
 	//Allocate vertex array buffer
 	if(vertexBuffer == NULL)
 		vertexBuffer = malloc(vertexMax * 2 * sizeof(GLfloat));
 	
-	// Add points to the buffer so there are drawing points every X pixels
+	//Add points to the buffer so there are drawing points every X pixels
 	count = MAX(ceilf(sqrtf((end.x - start.x) * (end.x - start.x) + (end.y - start.y) * (end.y - start.y)) / kBrushPixelStep), 1);
 	for(i = 0; i < count; ++i) {
 		if(vertexCount == vertexMax) {
@@ -182,8 +294,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	glVertexPointer(2, GL_FLOAT, 0, vertexBuffer);
 	glDrawArrays(GL_POINTS, 0, vertexCount);
 	
-	// Display the buffer
-	[self swapBuffers];
+	//Display the buffer
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
 
 // Reads previously recorded points and draws them onscreen. This is the Shake Me message that appears when the application launches.
@@ -203,7 +316,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	if([recordedPaths count])
 		[self performSelector:@selector(playback:) withObject:recordedPaths afterDelay:0.01];
 }
-
 
 
 // Handles the start of a touch
@@ -238,8 +350,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		
 	// Render the stroke
 	[self renderLineFromPoint:previousLocation toPoint:location];
-	
-	
 }
 
 // Handles the end of a touch event when the touch is a tap.
@@ -253,7 +363,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		previousLocation.y = bounds.size.height - previousLocation.y;
 		[self renderLineFromPoint:previousLocation toPoint:location];
 	}
-
 }
 
 // Handles the end of a touch event.

@@ -1,9 +1,11 @@
 /*
 
 File: PaintingView.h
-Abstract: The class responsible for the finger painting.
+Abstract: The class responsible for the finger painting. The class wraps the 
+CAEAGLLayer from CoreAnimation into a convenient UIView subclass. The view 
+content is basically an EAGL surface you render your OpenGL scene into.
 
-Version: 1.6
+Version: 1.7
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Inc.
 ("Apple") in consideration of your agreement to the following terms, and your
@@ -41,11 +43,14 @@ DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF
 CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
 APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Copyright (C) 2008 Apple Inc. All Rights Reserved.
+Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
 */
 
-#import "EAGLView.h"
+#import <UIKit/UIKit.h>
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
 
 //CONSTANTS:
 
@@ -57,17 +62,31 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 //CLASS INTERFACES:
 
-@interface PaintingView : EAGLView
+@interface PaintingView : UIView
 {
-	GLuint			    brushTexture;
-	GLuint				drawingTexture;
-	GLuint				drawingFramebuffer;
-	CGPoint				location;
-	CGPoint				previousLocation;
-	Boolean				firstTouch;
+@private
+	// The pixel dimensions of the backbuffer
+	GLint backingWidth;
+	GLint backingHeight;
+	
+	EAGLContext *context;
+	
+	// OpenGL names for the renderbuffer and framebuffers used to render to this view
+	GLuint viewRenderbuffer, viewFramebuffer;
+	
+	// OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist)
+	GLuint depthRenderbuffer;
+	
+	GLuint	brushTexture;
+	CGPoint	location;
+	CGPoint	previousLocation;
+	Boolean	firstTouch;
+	Boolean needsErase;
 }
+
 @property(nonatomic, readwrite) CGPoint location;
 @property(nonatomic, readwrite) CGPoint previousLocation;
 
-- (void) erase;
+-(void)erase;
+
 @end

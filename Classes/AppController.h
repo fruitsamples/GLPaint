@@ -4,7 +4,7 @@ File: AppController.h
 Abstract: The UIApplication  delegate class, which is the central controller of
 the application.
 
-Version: 1.6
+Version: 1.7
 
 Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Inc.
 ("Apple") in consideration of your agreement to the following terms, and your
@@ -42,23 +42,27 @@ DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF
 CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF
 APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Copyright (C) 2008 Apple Inc. All Rights Reserved.
+Copyright (C) 2009 Apple Inc. All Rights Reserved.
 
 */
 
-#import "PaintingView.h"
-#import "SoundEffect.h"
-
 //CLASS INTERFACES:
 
-@interface AppController : NSObject <UIAccelerometerDelegate>
+@class PaintingWindow;
+@class PaintingView;
+@class SoundEffect;
+
+@interface AppController : NSObject <UIApplicationDelegate>
 {
-	UIWindow			*window;
+	PaintingWindow		*window;
 	PaintingView		*drawingView;
 
-	UIAccelerationValue	myAccelerometer[3];
 	SoundEffect			*erasingSound;
 	SoundEffect			*selectSound;
 	CFTimeInterval		lastTime;
 }
+
+@property (nonatomic, retain) IBOutlet PaintingWindow *window;
+@property (nonatomic, retain) IBOutlet PaintingView *drawingView;
+
 @end
